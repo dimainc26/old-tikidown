@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:tikidown/pages/premium_page.dart';
+import 'package:tikidown/ad_helper.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -10,6 +12,63 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  BannerAd? _bannerAd;
+
+  @override
+  void initState() {
+    super.initState();
+    BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _bannerAd = ad as BannerAd;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          debugPrint('Failed to load a banner ad: ${err.message}');
+          ad.dispose();
+        },
+      ),
+    ).load();
+    _loadInterstitialAd();
+  }
+
+  InterstitialAd? _interstitialAd;
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              // _moveToHome();
+            },
+          );
+
+          setState(() {
+            _interstitialAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          debugPrint('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +110,9 @@ class _HomeState extends State<Home> {
                               border: Border.all(color: Colors.grey, width: 2)),
                           child: IconButton(
                               onPressed: () {
+                                if (_interstitialAd != null) {
+                                  _interstitialAd?.show();
+                                }
                                 Get.to(
                                     transition: Transition.rightToLeft,
                                     () => const Ads());
@@ -90,7 +152,8 @@ class _HomeState extends State<Home> {
                 ),
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 12),
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
                   width: Get.width - 80,
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -117,6 +180,16 @@ class _HomeState extends State<Home> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
                     color: Colors.orangeAccent,
+                  ),
+                  child: Column(
+                    children: [
+                      if (_bannerAd != null)
+                        SizedBox(
+                          width: _bannerAd!.size.width.toDouble(),
+                          height: _bannerAd!.size.height.toDouble(),
+                          child: AdWidget(ad: _bannerAd!),
+                        ),
+                    ],
                   ),
                 ),
               ],

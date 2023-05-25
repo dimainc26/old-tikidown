@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:tikidown/main.dart';
 import 'package:tikidown/widgets/container.dart';
 
 class Downloads extends StatefulWidget {

@@ -1,22 +1,37 @@
-
+// ignore_for_file: unused_field
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tikidown/ad_helper.dart';
+import 'package:tikidown/app_open_ad_manager.dart';
+import 'package:tikidown/lifecycle_reactor.dart';
 import 'package:tikidown/pages/downs_page.dart';
 import 'package:tikidown/pages/home_page.dart';
 
-void main() {
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+List<String> testDeviceIds = ['2BDAED443CEDF01EDE59C58F5B378812'];
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  RequestConfiguration configuration =
+      RequestConfiguration(testDeviceIds: testDeviceIds);
+  MobileAds.instance.updateRequestConfiguration(configuration);
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // ignore: unused_element
+  Future<InitializationStatus> _initGoogleMobileAds() {
+    return MobileAds.instance.initialize();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Tiki-Down',
       theme: ThemeData(
         fontFamily: "Lato",
         primarySwatch: Colors.blue,
@@ -34,8 +49,47 @@ class Base extends StatefulWidget {
 }
 
 class _BaseState extends State<Base> {
-
   final PageController pageController = PageController();
+
+  late AppLifecycleReactor _appLifecycleReactor;
+
+  @override
+  void initState() {
+    super.initState();
+
+     AppOpenAdManager appOpenAdManager = AppOpenAdManager()..loadAd();
+    _appLifecycleReactor = AppLifecycleReactor(
+      appOpenAdManager: appOpenAdManager);
+
+    _loadInterstitialAd();
+  }
+
+  InterstitialAd? _interstitialAd;
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              _loadInterstitialAd();
+
+              // _moveToHome();
+            },
+          );
+
+          setState(() {
+            _interstitialAd = ad;
+          });
+        },
+        onAdFailedToLoad: (err) {
+          debugPrint('Failed to load an interstitial ad: ${err.message}');
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +100,7 @@ class _BaseState extends State<Base> {
           height: Get.height,
           child: PageView(
             pageSnapping: false,
-              physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             controller: pageController,
             children: const [
               Home(),
@@ -71,7 +125,12 @@ class _BaseState extends State<Base> {
                 MaterialButton(
                   onPressed: () {
                     if (pageController.hasClients) {
-                      pageController.animateToPage(0, duration: const Duration(milliseconds: 500), curve: Curves.linear);
+                      if (_interstitialAd != null) {
+                        _interstitialAd?.show();
+                      }
+                      pageController.animateToPage(0,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.linear);
                     }
                   },
                   child: Column(
@@ -99,9 +158,13 @@ class _BaseState extends State<Base> {
                 MaterialButton(
                   onPressed: () {
                     if (pageController.hasClients) {
-                      pageController.animateToPage(1, duration: const Duration(milliseconds: 500), curve: Curves.linear);
+                      if (_interstitialAd != null) {
+                        _interstitialAd?.show();
+                      }
+                       pageController.animateToPage(1,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.linear);
                     }
-                   
                   },
                   child: Column(children: [
                     Image.asset(
@@ -125,4 +188,3 @@ class _BaseState extends State<Base> {
     );
   }
 }
-
