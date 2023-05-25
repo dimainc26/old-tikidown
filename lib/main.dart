@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tikidown/ad_helper.dart';
-import 'package:tikidown/app_open_ad_manager.dart';
-import 'package:tikidown/lifecycle_reactor.dart';
+import 'package:tikidown/ads/ad_helper.dart';
+import 'package:tikidown/ads/app_open_ad_manager.dart';
+import 'package:tikidown/ads/lifecycle_reactor.dart';
 import 'package:tikidown/pages/downs_page.dart';
 import 'package:tikidown/pages/home_page.dart';
 

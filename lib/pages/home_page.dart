@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:tikidown/pages/premium_page.dart';
-import 'package:tikidown/ad_helper.dart';
+import 'package:tikidown/ads/ad_helper.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
