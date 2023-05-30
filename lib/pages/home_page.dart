@@ -1,6 +1,13 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:tikidown/api/dio_client.dart';
+import 'package:tikidown/api/user_post_class.dart';
+import 'package:tikidown/api/video_class.dart';
 import 'package:tikidown/pages/premium_page.dart';
 import 'package:tikidown/ads/ad_helper.dart';
 
@@ -12,7 +19,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   BannerAd? _bannerAd;
 
   @override
@@ -65,9 +71,58 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     _bannerAd?.dispose();
+    linkController.dispose();
 
     super.dispose();
   }
+
+  final DioClient _client = DioClient();
+
+  var videoData = null;
+
+  searchVideo(link) {
+    _client.infoUser(userInfo: UserInfo(id: link));
+    setState(() {
+      videoData = VideoInfo.fromJson(_client.getUser());
+    });
+  }
+
+  bool downloading = false;
+  var progressString = "";
+
+  Future<String> get _localPath async {
+    Directory? dir = await getExternalStorageDirectory();
+
+    print(dir!.path);
+
+    return dir.path;
+  }
+
+  Future<void> downloadFile(url) async {
+    Dio dio = Dio();
+
+    _localPath;
+
+    print("directory:: ${_localPath}");
+
+    try {
+      await dio.download(
+        url,
+        "$_localPath/myvideo_1.mp4",
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            print("${(received / total * 100).toStringAsFixed(0)}%");
+          }
+        },
+      );
+    } catch (e) {
+      print(e);
+    }
+
+    print("Download complete");
+  }
+
+  final linkController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -151,46 +206,175 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(vertical: 12),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
+                  margin: const EdgeInsets.only(top: 12, bottom: 4),
+                  padding: const EdgeInsets.only(left: 32, top: 4, bottom: 4),
                   width: Get.width - 80,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(22),
                   ),
                   child: TextFormField(
+                    controller: linkController,
                     decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Paste URL Here",
-                        hintStyle: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xff9493A5),
-                        ),
-                        suffixIcon: Icon(
-                          Icons.paste,
-                          color: Color(0xff9493A5),
-                        )),
-                    style: const TextStyle(fontSize: 18),
+                      border: InputBorder.none,
+                      hintText: "Paste URL Here",
+                      hintStyle: TextStyle(
+                        fontSize: 16,
+                        color: Color(0xff9493A5),
+                      ),
+                    ),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
                 Container(
-                  width: Get.width - 40,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    color: Colors.orangeAccent,
-                  ),
-                  child: Column(
-                    children: [
-                      if (_bannerAd != null)
-                        SizedBox(
-                          width: _bannerAd!.size.width.toDouble(),
-                          height: _bannerAd!.size.height.toDouble(),
-                          child: AdWidget(ad: _bannerAd!),
-                        ),
-                    ],
-                  ),
+                    margin: const EdgeInsets.only(top: 6, bottom: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    width: Get.width - 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(color: Colors.grey),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xff7577CC), Color(0xff4E4E74)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: MaterialButton(
+                      onPressed: () {
+                        if (linkController.value.text.isNotEmpty) {
+                          searchVideo(linkController.value.text);
+
+                          Get.bottomSheet(
+                            Container(
+                                height: Get.height / 2 + 40,
+                                width: Get.width,
+                                color: Colors.greenAccent,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      height: (Get.height / 2) - 100,
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            width: Get.width - 20,
+                                            height: (Get.height / 2) - 180,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              color: Colors.grey,
+                                              image: const DecorationImage(
+                                                image: NetworkImage(
+                                                    'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            left: 20,
+                                            bottom: 20,
+                                            child: Container(
+                                              width: 90,
+                                              height: 90,
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.grey,
+                                                    width: 2),
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: NetworkImage(
+                                                      videoData.profileImg),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                              bottom: 40,
+                                              left: 120,
+                                              child: Text(
+                                                videoData.name +
+                                                    " / " +
+                                                    videoData.username,
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )),
+                                        ],
+                                      ),
+                                    ),
+                                    MaterialButton(
+                                      onPressed: () {
+                                        downloadFile(videoData.no_wm);
+                                      },
+                                      child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 18),
+                                          width: Get.width - 20,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            color: Colors.grey,
+                                          ),
+                                          child: const Text(
+                                            "Video authentique",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          )),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    MaterialButton(
+                                      onPressed: () {},
+                                      child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 18),
+                                          width: Get.width - 20,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            color: Colors.grey,
+                                          ),
+                                          child: const Text(
+                                            "Video avec filigrane",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          )),
+                                    ),
+                                  ],
+                                )),
+                            barrierColor:
+                                const Color(0xff4E4E74).withOpacity(.6),
+                            isDismissible: true,
+                            enableDrag: false,
+                          );
+                        }
+                      },
+                      child: const Icon(
+                        Icons.search,
+                        size: 32,
+                        color: Colors.grey,
+                      ),
+                    )),
+                Column(
+                  children: [
+                    if (videoData != null) Text(videoData.name),
+                    if (_bannerAd != null)
+                      SizedBox(
+                        width: _bannerAd!.size.width.toDouble(),
+                        height: _bannerAd!.size.height.toDouble(),
+                        child: AdWidget(ad: _bannerAd!),
+                      ),
+                  ],
                 ),
               ],
             ),
