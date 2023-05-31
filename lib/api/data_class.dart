@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'data_class.g.dart';
@@ -6,7 +8,7 @@ part 'data_class.g.dart';
 class Data {
   Data({
     required this.id,
-    required this.name,
+     this.name,
     this.username,
     this.profileImg,
     this.thumbnail,

@@ -1,8 +1,7 @@
-import 'dart:convert';
+// ignore_for_file: non_constant_identifier_names
 
 import 'package:dio/dio.dart';
-import 'package:tikidown/api/user_class.dart';
-import 'package:tikidown/api/data_class.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tikidown/api/user_post_class.dart';
 import 'package:html/parser.dart';
 
@@ -20,7 +19,7 @@ class DioClient {
     try {
       Response response = await _dio.post(
         queryParameters: {"mode": "video"},
-        _baseUrl + '/download',
+        '$_baseUrl/download',
         data: userInfo.toJson(),
       );
 
@@ -82,37 +81,18 @@ class DioClient {
           shares: shares,
           no_wm: no_wm,
           wm: wm,
+          thumbnail: thumbnail,
           sound_name: sound_name,
           sound_url: sound_url);
 
-      userData = Data(
-          id: 0,
-          name: name,
-          username: username,
-          profileImg: profileImg,
-          views: views,
-          loves: loves,
-          comments: comments,
-          shares: shares,
-          no_wm: no_wm,
-          wm: wm,
-          sound_name: sound_name,
-          sound_url: sound_url);
+      
     } catch (e) {
-      print('Error creating user: $e');
+      debugPrint('Error creating user: $e');
     }
 
-    print(userData);
+    debugPrint(userData);
 
     return retrievedUser;
   }
 
-  getUser() {
-    
-    // print(userData.toJson());
-
-    var data = userData.toJson();
-
-    return data;
-  }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors_in_immutables, prefer_interpolation_to_compose_strings, avoid_print, unnecessary_brace_in_string_interps
+
 import 'dart:io';
 
 import 'package:dio/dio.dart';

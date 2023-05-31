@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:tikidown/api/dio_client.dart';
-import 'package:tikidown/api/user_post_class.dart';
-import 'package:tikidown/api/video_class.dart';
 import 'package:tikidown/pages/premium_page.dart';
 import 'package:tikidown/ads/ad_helper.dart';
 
@@ -76,24 +74,13 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
-  final DioClient _client = DioClient();
-
-  var videoData = null;
-
-  searchVideo(link) {
-    _client.infoUser(userInfo: UserInfo(id: link));
-    setState(() {
-      videoData = VideoInfo.fromJson(_client.getUser());
-    });
-  }
-
   bool downloading = false;
   var progressString = "";
 
   Future<String> get _localPath async {
     Directory? dir = await getExternalStorageDirectory();
 
-    print(dir!.path);
+    debugPrint(dir!.path);
 
     return dir.path;
   }
@@ -103,7 +90,9 @@ class _HomeState extends State<Home> {
 
     _localPath;
 
-    print("directory:: ${_localPath}");
+    if (kDebugMode) {
+      print("directory:: $_localPath");
+    }
 
     try {
       await dio.download(
@@ -111,15 +100,15 @@ class _HomeState extends State<Home> {
         "$_localPath/myvideo_1.mp4",
         onReceiveProgress: (received, total) {
           if (total != -1) {
-            print("${(received / total * 100).toStringAsFixed(0)}%");
+            debugPrint("${(received / total * 100).toStringAsFixed(0)}%");
           }
         },
       );
     } catch (e) {
-      print(e);
+      debugPrint("$e");
     }
 
-    print("Download complete");
+    debugPrint("Download complete");
   }
 
   final linkController = TextEditingController();
@@ -242,122 +231,119 @@ class _HomeState extends State<Home> {
                     ),
                     child: MaterialButton(
                       onPressed: () {
-                        if (linkController.value.text.isNotEmpty) {
-                          searchVideo(linkController.value.text);
-
-                          Get.bottomSheet(
-                            Container(
-                                height: Get.height / 2 + 40,
-                                width: Get.width,
-                                color: Colors.greenAccent,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.only(top: 10),
-                                      height: (Get.height / 2) - 100,
-                                      child: Stack(
-                                        children: [
-                                          Container(
-                                            width: Get.width - 20,
-                                            height: (Get.height / 2) - 180,
+                        Get.bottomSheet(
+                          Container(
+                              height: Get.height / 2 + 40,
+                              width: Get.width,
+                              decoration: const BoxDecoration(
+                                color: Color(0xff7577CC),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(12),
+                                  topRight: Radius.circular(12),
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    height: (Get.height / 2) - 100,
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          width: Get.width - 20,
+                                          height: (Get.height / 2) - 180,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            color: Colors.grey,
+                                            image: const DecorationImage(
+                                              image: NetworkImage(
+                                                  'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          left: 20,
+                                          bottom: 20,
+                                          child: Container(
+                                            width: 90,
+                                            height: 90,
                                             decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              color: Colors.grey,
+                                              border: Border.all(
+                                                  color: Colors.grey, width: 2),
+                                              shape: BoxShape.circle,
                                               image: const DecorationImage(
                                                 image: NetworkImage(
-                                                    'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                                                    "https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg"),
                                                 fit: BoxFit.cover,
                                               ),
                                             ),
                                           ),
-                                          Positioned(
-                                            left: 20,
-                                            bottom: 20,
-                                            child: Container(
-                                              width: 90,
-                                              height: 90,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: Colors.grey,
-                                                    width: 2),
-                                                shape: BoxShape.circle,
-                                                image: DecorationImage(
-                                                  image: NetworkImage(
-                                                      videoData.profileImg),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Positioned(
-                                              bottom: 40,
-                                              left: 120,
-                                              child: Text(
-                                                videoData.name +
-                                                    " / " +
-                                                    videoData.username,
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              )),
-                                        ],
-                                      ),
+                                        ),
+                                        const Positioned(
+                                            bottom: 40,
+                                            left: 120,
+                                            child: Text(
+                                              "videoData.name / videoData.username",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
+                                            )),
+                                      ],
                                     ),
-                                    MaterialButton(
-                                      onPressed: () {
-                                        downloadFile(videoData.no_wm);
-                                      },
-                                      child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 18),
-                                          width: Get.width - 20,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            color: Colors.grey,
-                                          ),
-                                          child: const Text(
-                                            "Video authentique",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                          )),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    MaterialButton(
-                                      onPressed: () {},
-                                      child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 18),
-                                          width: Get.width - 20,
-                                          height: 60,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            color: Colors.grey,
-                                          ),
-                                          child: const Text(
-                                            "Video avec filigrane",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                          )),
-                                    ),
-                                  ],
-                                )),
-                            barrierColor:
-                                const Color(0xff4E4E74).withOpacity(.6),
-                            isDismissible: true,
-                            enableDrag: false,
-                          );
-                        }
+                                  ),
+                                  MaterialButton(
+                                    onPressed: () {
+                                      // TODO: download video
+                                    },
+                                    child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 18),
+                                        width: Get.width - 20,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          color: Colors.grey,
+                                        ),
+                                        child: const Text(
+                                          "Video authentique",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        )),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  MaterialButton(
+                                    onPressed: () {},
+                                    child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 18),
+                                        width: Get.width - 20,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          color: Colors.grey,
+                                        ),
+                                        child: const Text(
+                                          "Video avec filigrane",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        )),
+                                  ),
+                                ],
+                              )),
+                          barrierColor: const Color(0xff4E4E74).withOpacity(.6),
+                          isDismissible: true,
+                          enableDrag: false,
+                        );
                       },
                       child: const Icon(
                         Icons.search,
@@ -367,7 +353,6 @@ class _HomeState extends State<Home> {
                     )),
                 Column(
                   children: [
-                    if (videoData != null) Text(videoData.name),
                     if (_bannerAd != null)
                       SizedBox(
                         width: _bannerAd!.size.width.toDouble(),

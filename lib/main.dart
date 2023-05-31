@@ -1,3 +1,4 @@
+
 // ignore_for_file: unused_field
 
 import 'package:flutter/material.dart';
@@ -5,12 +6,6 @@ import 'package:get/get.dart';
 import 'package:tikidown/ads/ad_helper.dart';
 import 'package:tikidown/ads/app_open_ad_manager.dart';
 import 'package:tikidown/ads/lifecycle_reactor.dart';
-import 'package:tikidown/api/data_class.dart';
-import 'package:tikidown/api/dio_client.dart';
-import 'package:tikidown/api/user_class.dart';
-import 'package:tikidown/api/user_post_class.dart';
-import 'package:tikidown/api/video_class.dart';
-import 'package:tikidown/neo.dart';
 import 'package:tikidown/pages/downs_page.dart';
 import 'package:tikidown/pages/home_page.dart';
 
@@ -42,122 +37,10 @@ class MyApp extends StatelessWidget {
         fontFamily: "Lato",
         primarySwatch: Colors.blue,
       ),
-      home: Neo(),
+      home: const Base(),
     );
   }
 }
-
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final DioClient _client = DioClient();
-
-  var videoData = null;
-
-  searchVideo(link) {
-    _client.infoUser(userInfo: UserInfo(id: link));
-    setState(() {
-      videoData = VideoInfo.fromJson(_client.getUser());
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('User Info'),
-      ),
-      body: Column(
-        children: [
-          Container(
-              height: Get.height / 2 + 40,
-              width: Get.width,
-              color: Colors.greenAccent,
-              child: Column(
-                children: [
-                  Container(
-                    padding: EdgeInsets.only(top: 10),
-                    height: (Get.height / 2) - 100,
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: Get.width - 20,
-                          height: (Get.height / 2) - 180,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.grey,
-                            image: const DecorationImage(
-                              image: NetworkImage(
-                                  'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 20,
-                          bottom: 20,
-                          child: Container(
-                            width: 90,
-                            height: 90,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey, width: 2),
-                              shape: BoxShape.circle,
-                              image: const DecorationImage(
-                                image: NetworkImage(
-                                    'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const Positioned(
-                            bottom: 40,
-                            left: 120,
-                            child: Text(
-                              "@diima_02",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            )),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: Get.width - 20,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.grey,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    width: Get.width - 20,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              )),
-          TextButton(
-            onPressed: () {
-              searchVideo("https://vm.tiktok.com/ZM2NWhwLX");
-            },
-            child: Text("Clicker Ici man"),
-          ),
-          videoData != null ? Text(videoData.name) : const SizedBox(height: 1),
-        ],
-      ),
-    );
-  }
-}
-
 class Base extends StatefulWidget {
   const Base({Key? key}) : super(key: key);
 
