@@ -6,9 +6,15 @@ class NewWidget extends StatelessWidget {
   const NewWidget({
     super.key,
     required this.width,
+    // required this.username,
+    // required this.name,
+    required this.imgFile,
   });
 
   final double width;
+  // final String name;
+  // final String username;
+  final String imgFile;
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +47,12 @@ class NewWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Video Title",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+                 Text(
+                  "name",
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
                 ),
                 Text(
-                  "Video author".toUpperCase(),
+                  "username".toUpperCase(),
                   style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 Row(

@@ -11,6 +11,7 @@ import 'package:tikidown/api/dio_client.dart';
 import 'package:tikidown/api/user_post_class.dart';
 import 'package:tikidown/pages/premium_page.dart';
 import 'package:tikidown/ads/ad_helper.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -121,6 +122,15 @@ class _HomeState extends State<Home> {
   getVideoDatas(link) async {
     var videoData = await _client.infoUser(userInfo: UserInfo(id: link));
 
+    final thumbnail = await VideoThumbnail.thumbnailFile(
+        video: videoData!.no_wm!,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 360,
+        quality: 100,
+        timeMs: 16000);
+
+    print("poooooooo  $thumbnail");
+
     if (videoData == null) {
       print("Nullleeeer");
     } else {
@@ -149,7 +159,7 @@ class _HomeState extends State<Home> {
                           borderRadius: BorderRadius.circular(12),
                           color: Colors.grey,
                           image: DecorationImage(
-                            image: NetworkImage(videoData.profileImg!),
+                            image: FileImage(File(thumbnail!)),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -209,7 +219,6 @@ class _HomeState extends State<Home> {
                 ),
                 MaterialButton(
                   onPressed: () {
-                    // TODO: download video
                     launchDownload(videoData.no_wm!, videoData.username!);
                     Get.back();
                   },
@@ -460,37 +469,57 @@ class _HomeState extends State<Home> {
                   ),
                 ),
                 Container(
-                    margin: const EdgeInsets.only(top: 6, bottom: 12),
-                    padding: loading
-                        ? null
-                        : const EdgeInsets.symmetric(vertical: 4),
-                    width: Get.width - 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: loading ? null : BorderRadius.circular(22),
-                      border: Border.all(color: Colors.grey),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xff7577CC), Color(0xff4E4E74)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                  margin: const EdgeInsets.only(top: 6, bottom: 12),
+                  padding:
+                      loading ? null : const EdgeInsets.symmetric(vertical: 4),
+                  width: Get.width - 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: Colors.grey),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xff7577CC), Color(0xff4E4E74)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    child: loading
-                        ? LinearProgressIndicator(
-                            value: progress,
-                            color: Colors.green,
-                            minHeight: 20,
-                          )
-                        : MaterialButton(
-                            onPressed: () {
-                              getVideoDatas(linkController.value.text);
-                            },
-                            child: const Icon(
-                              Icons.search,
-                              size: 32,
-                              color: Colors.grey,
-                            ),
-                          )),
+                  ),
+                  child: loading
+                      ? Container(
+                          height: 50,
+                          clipBehavior: Clip.hardEdge,
+                          // margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.centerLeft,
+                            children: [
+                              Positioned.fill(
+                                child: LinearProgressIndicator(
+                                  //Here you pass the percentage
+                                  value: progress,
+                                  color: Colors.white24,
+                                  
+                                  backgroundColor: Color(0xff7577CC).withAlpha(20),
+                                ),
+                              ),
+                              const Center(
+                                child: Text('Download...'),
+                              )
+                            ],
+                          ),
+                        )
+                      : MaterialButton(
+                          onPressed: () {
+                            getVideoDatas(linkController.value.text);
+                          },
+                          child: const Icon(
+                            Icons.search,
+                            size: 32,
+                            color: Colors.grey,
+                          ),
+                        ),
+                ),
                 Column(
                   children: [
                     if (_bannerAd != null)
