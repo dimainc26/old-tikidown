@@ -1,14 +1,12 @@
-import 'dart:io' as io;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:video_player/video_player.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 
 class PlayerPage extends StatefulWidget {
-  PlayerPage({Key? key}) : super(key: key);
+  const PlayerPage({Key? key}) : super(key: key);
 
   @override
   State<PlayerPage> createState() => _PlayerPageState();
@@ -27,14 +25,12 @@ class _PlayerPageState extends State<PlayerPage> {
     _controller = VideoPlayerController.network(
         'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4')
       ..initialize().then((_) {
-        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         setState(() {});
       });
 
     if (data["type"] == "mp4") {
       _controller = VideoPlayerController.file(File(data["path"]))
         ..initialize().then((_) {
-          // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
           setState(() {
             _controller.play();
           });
@@ -47,20 +43,54 @@ class _PlayerPageState extends State<PlayerPage> {
     super.dispose();
     _controller.dispose();
   }
-
-  _sharePressed() async {
-    // Share.shareXFiles([XFile(data["path"])], text: "${data["path"]}");
-    await Share.shareXFiles([XFile("${data["path"]}")],
-        text: "${data["path"]}");
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: data["type"] == "jpg"
-          ? Container(
-              decoration: BoxDecoration(
-                  image: DecorationImage(image: FileImage(File(data["path"])))),
+          ? Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xff7577CC), Color(0xff4E4E74)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    image: DecorationImage(
+                      image: FileImage(
+                        File(data["path"]),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: Get.height / 9,
+                  right: 40,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 30),
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xff7577CC), Color(0xff4E4E74)],
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                      ),
+                    ),
+                    child: IconButton(
+                      onPressed: () async {
+                        await Share.shareXFiles([XFile("${data["path"]}")],
+                            text: labelSign);
+                      },
+                      icon: const Icon(Icons.share),
+                      color: Colors.white,
+                      iconSize: 30,
+                    ),
+                  ),
+                )
+              ],
             )
           : Stack(
               children: [
@@ -91,7 +121,6 @@ class _PlayerPageState extends State<PlayerPage> {
                                       child: VideoPlayer(_controller),
                                     ),
                                   ),
-                                  // duree totale ici
                                   Positioned(
                                     bottom: 20,
                                     child: Container(
@@ -161,7 +190,7 @@ class _PlayerPageState extends State<PlayerPage> {
                                         onPressed: () async {
                                           await Share.shareXFiles(
                                               [XFile("${data["path"]}")],
-                                              text: labelSign );
+                                              text: labelSign);
                                         },
                                         icon: const Icon(Icons.share),
                                         color: Colors.white,

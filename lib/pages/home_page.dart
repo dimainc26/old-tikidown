@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, unnecessary_null_comparison
+
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -129,8 +131,6 @@ class _HomeState extends State<Home> {
         quality: 100,
         timeMs: 16000);
 
-    print("poooooooo  $thumbnail");
-
     if (videoData == null) {
       print("Nullleeeer");
     } else {
@@ -219,7 +219,11 @@ class _HomeState extends State<Home> {
                 ),
                 MaterialButton(
                   onPressed: () {
-                    launchDownload(videoData.no_wm!, videoData.username!);
+                    launchDownload(
+                      videoData.no_wm!,
+                      videoData.username!,
+                      videoData.name!,
+                    );
                     Get.back();
                   },
                   child: Container(
@@ -241,7 +245,14 @@ class _HomeState extends State<Home> {
                   height: 10,
                 ),
                 MaterialButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    launchDownload(
+                      videoData.wm!,
+                      videoData.username!,
+                      videoData.name!,
+                    );
+                    Get.back();
+                  },
                   child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       width: Get.width - 20,
@@ -287,7 +298,7 @@ class _HomeState extends State<Home> {
     Directory? directory;
     try {
       if (Platform.isAndroid) {
-        if (await _requestPermission(Permission.storage)) {
+        if (await _requestPermission(Permission.manageExternalStorage)) {
           directory = await getExternalStorageDirectory();
 
           String newPath = "";
@@ -297,16 +308,16 @@ class _HomeState extends State<Home> {
           for (int i = 0; i < folders.length; i++) {
             String folder = folders[i];
             if (folder != "Android") {
-              newPath += "/" + folder;
+              newPath += "/$folder";
             } else {
               break;
             }
           }
 
-          newPath = newPath + "/TikiDowns";
+          newPath = "$newPath/TikiDowns";
           directory = Directory(newPath);
 
-          print(directory.path);
+          print("PATH: ${directory.path}");
         } else {
           return false;
         }
@@ -343,12 +354,25 @@ class _HomeState extends State<Home> {
     return false;
   }
 
-  launchDownload(url, username) async {
+  launchDownload(url, username, name) async {
     setState(() {
       loading = true;
     });
 
-    bool downloaded = await saveFile(url, "${username}_fileName.mp4");
+    var date = DateTime.now().toString();
+    var parse = date.split(" ");
+    var dt = parse[0].split("-");
+
+    var tm = parse[1].split(".");
+    tm = tm[0].split(":");
+
+    var tms = dt[0] + dt[1] + dt[2] + tm[0] + tm[1] + tm[2];
+    print(tms);
+
+    var fileName = "${username}_${name}_${tms}.mp4";
+    print(fileName);
+
+    bool downloaded = await saveFile(url, fileName);
     if (downloaded) {
       setState(() {
         loading = false;
@@ -358,8 +382,8 @@ class _HomeState extends State<Home> {
           title: "Status",
           middleText: "Download success!",
           backgroundColor: Colors.teal,
-          titleStyle: TextStyle(color: Colors.white),
-          middleTextStyle: TextStyle(color: Colors.white),
+          titleStyle: const TextStyle(color: Colors.white),
+          middleTextStyle: const TextStyle(color: Colors.white),
           radius: 30);
     } else {
       print("not downloaded error");
@@ -499,8 +523,9 @@ class _HomeState extends State<Home> {
                                   //Here you pass the percentage
                                   value: progress,
                                   color: Colors.white24,
-                                  
-                                  backgroundColor: Color(0xff7577CC).withAlpha(20),
+
+                                  backgroundColor:
+                                      const Color(0xff7577CC).withAlpha(20),
                                 ),
                               ),
                               const Center(

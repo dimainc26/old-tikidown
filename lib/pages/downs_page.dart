@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:tikidown/pages/player_page.dart';
 
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -108,14 +109,20 @@ class _DownloadsState extends State<Downloads> {
                 height: height - 300,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 child: ListView.builder(
+                  shrinkWrap: true,
                   itemCount: pathsObject.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 14),
                       width: width - 40,
                       height: 120,
                       decoration: BoxDecoration(
-                        color: Colors.orange,
+                        gradient: const LinearGradient(
+                          colors: [Color(0xff7577CC), Color(0xff4E4E74)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -173,7 +180,8 @@ class _DownloadsState extends State<Downloads> {
                                           shape: BoxShape.circle),
                                       child: IconButton(
                                           onPressed: () {
-                                            Get.to(()=> PlayerPage(), arguments: pathsObject[index]  );
+                                            Get.to(() => const PlayerPage(),
+                                                arguments: pathsObject[index]);
                                           },
                                           icon: const Icon(Icons.play_arrow)),
                                     ),
@@ -182,8 +190,40 @@ class _DownloadsState extends State<Downloads> {
                                           color: Color(0xff7577CC),
                                           shape: BoxShape.circle),
                                       child: IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Share.shareXFiles([
+                                              XFile(pathsObject[index]["path"])
+                                            ]);
+                                          },
                                           icon: const Icon(Icons.share)),
+                                    ),
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                          color: Color(0xff7577CC),
+                                          shape: BoxShape.circle),
+                                      child: IconButton(
+                                          onPressed: () {
+                                            File(pathsObject[index]["path"])
+                                                .delete()
+                                                .then(
+                                                  (value) => Get.defaultDialog(
+                                                      title: "Status",
+                                                      middleText:
+                                                          "Download success!",
+                                                      backgroundColor:
+                                                          Colors.teal,
+                                                      titleStyle:
+                                                          const TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                      middleTextStyle:
+                                                          const TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                      radius: 30),
+                                                );
+                                          },
+                                          icon: const Icon(Icons.delete)),
                                     ),
                                   ],
                                 )
@@ -199,7 +239,13 @@ class _DownloadsState extends State<Downloads> {
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 height: 140,
-                color: Colors.orangeAccent,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xff7577CC), Color(0xff4E4E74)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
               )
             ],
           )

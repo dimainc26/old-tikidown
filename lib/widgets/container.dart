@@ -47,9 +47,9 @@ class NewWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                 Text(
+                 const Text(
                   "name",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal),
                 ),
                 Text(
                   "username".toUpperCase(),

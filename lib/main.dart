@@ -8,7 +8,6 @@ import 'package:tikidown/ads/app_open_ad_manager.dart';
 import 'package:tikidown/ads/lifecycle_reactor.dart';
 import 'package:tikidown/pages/downs_page.dart';
 import 'package:tikidown/pages/home_page.dart';
-import 'package:tikidown/neo.dart';
 
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -38,7 +37,7 @@ class MyApp extends StatelessWidget {
         fontFamily: "Lato",
         primarySwatch: Colors.blue,
       ),
-      home:  Base(),
+      home:  const Base(),
     );
   }
 }
