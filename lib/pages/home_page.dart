@@ -421,38 +421,41 @@ class _HomeState extends State<Home> {
                         bottomLeft: Radius.circular(25),
                       ),
                     ),
-                    child: Row(children: [
-                      Container(
-                          width: 40,
-                          height: 40,
-                          margin: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey, width: 2)),
-                          child: IconButton(
-                              onPressed: () {
-                                if (_interstitialAd != null) {
-                                  _interstitialAd?.show();
-                                }
-                                Get.to(
-                                    transition: Transition.rightToLeft,
-                                    () => const Ads());
-                              },
-                              icon: const Icon(
-                                Icons.menu,
-                                size: 22,
-                                color: Colors.grey,
-                              ))),
-                      const Text(
-                        "Go Premium",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                            fontSize: 16),
-                      )
-                    ]),
+                    // child: Row(children: [
+                    //   Container(
+                    //     width: 40,
+                    //     height: 40,
+                    //     margin: const EdgeInsets.all(6),
+                    //     decoration: BoxDecoration(
+                    //         shape: BoxShape.circle,
+                    //         border: Border.all(color: Colors.grey, width: 2)),
+                    //     child: IconButton(
+                    //       onPressed: () {
+                    //         // if (_interstitialAd != null) {
+                    //         //   _interstitialAd?.show();
+                    //         // }
+                    //         Get.to(
+                    //             transition: Transition.rightToLeft,
+                    //             () => const Ads());
+                    //       },
+                    //       icon: const Icon(
+                    //         Icons.menu,
+                    //         size: 22,
+                    //         color: Colors.grey,
+                    //       ),
+                    //     ),
+                    //   ),
+                    //   const Text(
+                    //     "Go Premium",
+                    //     style: TextStyle(
+                    //         fontWeight: FontWeight.bold,
+                    //         color: Colors.grey,
+                    //         fontSize: 16),
+                    //   )
+                    // ]),
                   ),
                 ),
+                const Padding(padding: EdgeInsets.only(top: 20)),
                 SizedBox(
                   width: Get.width,
                   height: Get.height / 3.5,

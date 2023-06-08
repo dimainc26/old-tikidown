@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:pay/pay.dart';
+import 'package:tikidown/api/payment_config.dart';
 
 class Ads extends StatefulWidget {
   const Ads({Key? key}) : super(key: key);
@@ -11,11 +14,48 @@ class Ads extends StatefulWidget {
 }
 
 class _AdsState extends State<Ads> {
-  List<PaymentItem> _paymentItems = [PaymentItem(amount: "1euro")];
+  String os = Platform.operatingSystem;
 
-  void onGooglePayResult(paymentResult) {
-    // Send the resulting Google Pay token to your server / PSP
-  }
+  var appleButton = ApplePayButton(
+    paymentConfiguration: PaymentConfiguration.fromJsonString(defaultApplePay),
+    onPaymentResult: (result) => debugPrint("payment result: $result"),
+    paymentItems: const [
+      PaymentItem(
+          amount: "0.01",
+          label: "Item 1",
+          status: PaymentItemStatus.final_price),
+      PaymentItem(
+          amount: "0.02",
+          label: "Item 2",
+          status: PaymentItemStatus.final_price),
+    ],
+    style: ApplePayButtonStyle.black,
+    type: ApplePayButtonType.buy,
+    width: double.infinity,
+    height: 60,
+    loadingIndicator: const Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
+
+  // Google Pay
+
+  var googleButton = GooglePayButton(
+    paymentConfiguration: PaymentConfiguration.fromJsonString(defaultGooglePay),
+    onPaymentResult: (result) => debugPrint("payment result: $result"),
+    paymentItems: const [
+      PaymentItem(
+          amount: "0.03",
+          label: "Total",
+          status: PaymentItemStatus.final_price),
+    ],
+    type: GooglePayButtonType.pay,
+    width: double.infinity,
+    height: 60,
+    loadingIndicator: const Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -99,65 +139,12 @@ class _AdsState extends State<Ads> {
               Padding(
                 padding: const EdgeInsets.only(top: 30, bottom: 10),
                 child: Container(
-                    width: Get.width - 160,
-                    decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(50)),
-                    child: GooglePayButton(
-                        paymentConfiguration:
-                            PaymentConfiguration.fromJsonString("""
-{
-   "provider":"google_pay",
-   "data":{
-      "environment":"TEST",
-      "apiVersion":2,
-      "apiVersionMinor":0,
-      "allowedPaymentMethods":[
-         {
-            "type":"CARD",
-            "tokenizationSpecification":{
-               "type":"PAYMENT_GATEWAY",
-               "parameters":{
-                  "gateway":"example",
-                  "gatewayMerchantId":"gatewayMerchantId"
-               }
-            },
-            "parameters":{
-               "allowedCardNetworks":[
-                  "VISA",
-                  "MASTERCARD"
-               ],
-               "allowedAuthMethods":[
-                  "PAN_ONLY",
-                  "CRYPTOGRAM_3DS"
-               ],
-               "billingAddressRequired":true,
-               "billingAddressParameters":{
-                  "format":"FULL",
-                  "phoneNumberRequired":true
-               }
-            }
-         }
-      ],
-      "merchantInfo":{
-         "merchantId":"01234567890123456789",
-         "merchantName":"Example Merchant Name"
-      },
-      "transactionInfo":{
-         "countryCode":"US",
-         "currencyCode":"USD"
-      }
-   }
-}
-
-"""),
-                        paymentItems: _paymentItems,
-                        type: GooglePayButtonType.pay,
-                        margin: const EdgeInsets.only(top: 15.0),
-                        onPaymentResult: onGooglePayResult,
-                        loadingIndicator: const Center(
-                          child: CircularProgressIndicator(),
-                        ))),
+                  width: Get.width - 160,
+                  decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(50)),
+                  child: Platform.isAndroid ? googleButton : appleButton,
+                ),
               ),
               MaterialButton(
                 onPressed: () {},

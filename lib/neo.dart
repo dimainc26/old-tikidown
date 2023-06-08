@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:video_player/video_player.dart';
-
 class Neo extends StatefulWidget {
   const Neo({Key? key}) : super(key: key);
 
@@ -24,9 +22,7 @@ class _NeoState extends State<Neo> {
             tm = tm[0].split(":");
 
             var tms = dt[0] + dt[1] + dt[2] + tm[0] + tm[1] + tm[2];
-            print(tms);
           },
-          child: Text("Click"),
         ),
       ),
     );
